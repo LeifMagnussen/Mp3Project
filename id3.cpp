@@ -2,46 +2,69 @@
 #include "stdafx.h"
 
 
+
+
+id3::id3(std::vector<unsigned char> mp3Data)
+{
+	/* setting id3 data upon construction*/
+	this->version = mp3Data[3] + mp3Data[4];
+	id3Identifier(mp3Data) ? this->validity = true : this->validity = false;
+	this->offSet = findOffset(mp3Data);
+
+	/* checking id3 flags */
+	std::vector<unsigned char> tmpBuff = findFlags(mp3Data);
+
+	/* constructing the id3 object with flags */
+	this->unsynchronizationFlag = tmpBuff[0];
+	this->extendedHeaderFlag = tmpBuff[1];
+	this->experimentalHeaderFlag = tmpBuff[2];
+	this->footerFlag = tmpBuff[3];
+
+}
+
 std::vector<unsigned char> id3::get_tags(std::vector<unsigned char> mp3Data)
 {
-	std::vector<unsigned char> id3Data;
-	for (int i = 0; i < mp3Data.size(); i += 3)
+	for (int i = 0; i < ID3HEADERLENGTH; i ++)
 	{
-		if (mp3Data[i] == 'I' && mp3Data[i + 1] == 'D' && mp3Data[i + 2] == '3')
-		{
-			id3Data = findLength(mp3Data);
-			break;
-		}
+		id3::id3Offset.push_back(mp3Data[i]);
 	}
 
-	// call buffer modifier to shape the mp3 data
-
-
-	return id3Data;
+	return id3::id3Offset;
 }
 
 
-vector<unsigned char> id3::findLength(std::vector<unsigned char> &mp3Data)
+std::vector<unsigned char> id3::findLength(std::vector<unsigned char> &mp3Data)
 {
 	std::vector<unsigned char> id3Tags;
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		id3Tags.push_back(mp3Data[i]);
 	}
 	return id3Tags;
 }
 
-
-std::vector<unsigned char> id3::alterTest(std::vector<unsigned char> mp3Data)
+unsigned int id3::findOffset(vector<unsigned char>& buffer)
 {
-	char testString = '0a67';
-	for (int i = 100; i < mp3Data.size() - 300; i++)
-	{
-		if (mp3Data[i] == testString)
-		{
-			mp3Data[i] = '0a00';
-		}
-	}
+	util utilObj;
+	int convertedOffset = utilObj.convertChar(&buffer[6]);
 
-	return mp3Data;
+	return convertedOffset;
 }
+
+bool id3::id3Identifier(vector<unsigned char> buff)
+{
+	if (buff[0] == 'I' && buff[1] == 'D' && buff[2] == '3')
+		return true;
+
+	return false;
+}
+
+std::vector<unsigned char> id3::findFlags(vector<unsigned char> buff)
+{
+	std::vector<unsigned char> tmpVec(4);
+	for (int i = 0; i < tmpVec.size(); i++)
+		tmpVec[i] = buff[i];
+
+	return tmpVec;
+}
+

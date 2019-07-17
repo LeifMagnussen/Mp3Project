@@ -6,14 +6,33 @@
 #include "stdafx.h"
 
 using std::vector;
+using std::string;
 
 class id3 {
 private:
 	vector<unsigned char> findLength(vector<unsigned char> &);
-	vector<unsigned char> alterTest(vector<unsigned char> );
+	bool id3Identifier(vector<unsigned char>);
+	vector<unsigned char> get_tags(vector<unsigned char> mp3Data);
+	vector<unsigned char> id3Offset;
+	unsigned int findOffset(vector<unsigned char>&);
+	const int ID3HEADERLENGTH = 10;
+	const int ID3FlAGLENGTH = 4;
+	/* id3 tag values */
+	string version;
+	bool validity;
+	
+	
+	
 
 public:
-	vector<unsigned char> get_tags(vector<unsigned char> mp3Data);
+	unsigned int offSet;
+	bool unsynchronizationFlag;
+	bool extendedHeaderFlag;
+	bool experimentalHeaderFlag;
+	bool footerFlag;
+	id3(vector<unsigned char>);
+	vector<unsigned char> findFlags(vector<unsigned char>);
+	
 	
 };
 
